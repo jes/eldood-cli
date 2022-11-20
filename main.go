@@ -6,6 +6,9 @@ package main
 // - some way to participate in the poll rather than just print the status
 // - a better orange
 // - when the table is too wide to fit into the terminal, chunk up the dates and draw several tables?
+// - make colour optional
+// - separate data fetching & json parsing from output formatting
+// - unit tests
 
 import (
 	"encoding/json"
