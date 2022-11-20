@@ -49,7 +49,7 @@ func main() {
 	}
 
 	if result["status"].(string) != "ok" {
-		fmt.Fprintf(os.Stderr, "bad status\n", err)
+		fmt.Fprintf(os.Stderr, "bad status (is the token '%s' correct?)\n", token)
 		os.Exit(1)
 	}
 
