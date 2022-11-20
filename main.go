@@ -157,11 +157,7 @@ func toStringSlice(in []interface{}) []string {
 }
 
 func spaces(n int) string {
-	var out string
-	for i := 0; i < n; i++ {
-		out = out + " "
-	}
-	return out
+	return fmt.Sprintf(fmt.Sprintf("%%%ds", n), "")
 }
 
 func hasDate(date string, dates []string) bool {
