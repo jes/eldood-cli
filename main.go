@@ -31,9 +31,11 @@ type Response struct {
 	date map[string]Attendance
 }
 
-var AnsiGreen = "\033[32m\033[7m"
-var AnsiOrange = "\033[33m\033[7m"
-var AnsiReset = "\033[0m"
+const AnsiGreen = "\033[32m\033[7m"
+const AnsiOrange = "\033[33m\033[7m"
+const AnsiReset = "\033[0m"
+const YyyymmddLayout = "20060102"
+const CheckMark = "\u2713"
 
 func main() {
 	if len(os.Args) != 2 {
@@ -92,16 +94,17 @@ func main() {
 		})
 	}
 
+	// print poll name & description
 	fmt.Println(result["name"].(string))
 	fmt.Println(result["descr"].(string))
 	fmt.Println()
 
+	// print date headings
 	weekdays := spaces(maxNameLength + 1)
 	monthdays := spaces(maxNameLength + 1)
 	months := spaces(maxNameLength + 1)
-	dateLayout := "20060102"
 	for _, date := range dates {
-		time, err := time.Parse(dateLayout, date)
+		time, err := time.Parse(YyyymmddLayout, date)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "parse date %s: %v\n", date, err)
 			os.Exit(1)
@@ -114,6 +117,8 @@ func main() {
 	fmt.Println(monthdays)
 	fmt.Println(months)
 	fmt.Println()
+
+	// print a row for each prospective attendee
 	okCount := make(map[string]int)
 	ifneedbeCount := make(map[string]int)
 	for _, r := range responses {
@@ -125,11 +130,11 @@ func main() {
 			att := r.date[date]
 			if att == OK {
 				fmt.Print(AnsiGreen)
-				fmt.Print("  \u2713  ")
+				fmt.Print("  " + CheckMark + "  ")
 				inc(okCount, date)
 			} else if att == IfNeedBe {
 				fmt.Print(AnsiOrange)
-				fmt.Print(" (\u2713) ")
+				fmt.Print(" (" + CheckMark + ") ")
 				inc(ifneedbeCount, date)
 			} else {
 				fmt.Print(spaces(5))
@@ -140,6 +145,8 @@ func main() {
 		fmt.Println()
 	}
 	fmt.Println()
+
+	// print a total of the number of attendees per date
 	oks := spaces(maxNameLength)
 	ifneedbes := spaces(maxNameLength)
 	for _, date := range dates {
