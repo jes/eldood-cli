@@ -108,7 +108,7 @@ func main() {
 		fmt.Print("  ")
 
 		for _, date := range dates {
-			if r.okDate(date) {
+			if hasDate(date, r.okDates) {
 				fmt.Print(AnsiGreen)
 				fmt.Print("  \u2713  ")
 				fmt.Print(AnsiReset)
@@ -117,7 +117,7 @@ func main() {
 				} else {
 					okCount[date] = 1
 				}
-			} else if r.ifneedbeDate(date) {
+			} else if hasDate(date, r.ifneedbeDates) {
 				fmt.Print(AnsiOrange)
 				fmt.Print(" (\u2713) ")
 				fmt.Print(AnsiReset)
@@ -164,17 +164,8 @@ func spaces(n int) string {
 	return out
 }
 
-func (r Response) okDate(date string) bool {
-	for _, d := range r.okDates {
-		if d == date {
-			return true
-		}
-	}
-	return false
-}
-
-func (r Response) ifneedbeDate(date string) bool {
-	for _, d := range r.ifneedbeDates {
+func hasDate(date string, dates []string) bool {
+	for _, d := range dates {
 		if d == date {
 			return true
 		}
