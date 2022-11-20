@@ -18,10 +18,17 @@ import (
 	"time"
 )
 
+type Attendance int
+
+const (
+	None     = iota
+	IfNeedBe = iota
+	OK       = iota
+)
+
 type Response struct {
-	name          string
-	okDates       []string
-	ifneedbeDates []string
+	name string
+	date map[string]Attendance
 }
 
 var AnsiGreen = "\033[32m\033[7m"
@@ -71,10 +78,17 @@ func main() {
 			maxNameLength = len(name)
 		}
 
+		date := make(map[string]Attendance)
+		for _, d := range toStringSlice(okDates) {
+			date[d] = OK
+		}
+		for _, d := range toStringSlice(ifneedbeDates) {
+			date[d] = IfNeedBe
+		}
+
 		responses = append(responses, Response{
-			name:          name,
-			okDates:       toStringSlice(okDates),
-			ifneedbeDates: toStringSlice(ifneedbeDates),
+			name: name,
+			date: date,
 		})
 	}
 
@@ -108,27 +122,19 @@ func main() {
 		fmt.Print("  ")
 
 		for _, date := range dates {
-			if hasDate(date, r.okDates) {
+			att := r.date[date]
+			if att == OK {
 				fmt.Print(AnsiGreen)
 				fmt.Print("  \u2713  ")
-				fmt.Print(AnsiReset)
-				if _, exists := okCount[date]; exists {
-					okCount[date]++
-				} else {
-					okCount[date] = 1
-				}
-			} else if hasDate(date, r.ifneedbeDates) {
+				inc(okCount, date)
+			} else if att == IfNeedBe {
 				fmt.Print(AnsiOrange)
 				fmt.Print(" (\u2713) ")
-				fmt.Print(AnsiReset)
-				if _, exists := ifneedbeCount[date]; exists {
-					ifneedbeCount[date]++
-				} else {
-					ifneedbeCount[date] = 1
-				}
+				inc(ifneedbeCount, date)
 			} else {
 				fmt.Print(spaces(5))
 			}
+			fmt.Print(AnsiReset)
 		}
 
 		fmt.Println()
@@ -138,11 +144,11 @@ func main() {
 	ifneedbes := spaces(maxNameLength)
 	for _, date := range dates {
 		oks = oks + fmt.Sprintf("   %2d", okCount[date])
-		ifneedbeString := ""
 		if ifneedbeCount[date] != 0 {
-			ifneedbeString = fmt.Sprintf("+%d", ifneedbeCount[date])
+			ifneedbes = ifneedbes + fmt.Sprintf("  %3s", fmt.Sprintf("+%d", ifneedbeCount[date]))
+		} else {
+			ifneedbes = ifneedbes + spaces(5)
 		}
-		ifneedbes = ifneedbes + fmt.Sprintf("  %3s", ifneedbeString)
 	}
 	fmt.Println(oks)
 	fmt.Println(ifneedbes)
@@ -160,11 +166,10 @@ func spaces(n int) string {
 	return fmt.Sprintf(fmt.Sprintf("%%%ds", n), "")
 }
 
-func hasDate(date string, dates []string) bool {
-	for _, d := range dates {
-		if d == date {
-			return true
-		}
+func inc(count map[string]int, key string) {
+	if _, exists := count[key]; exists {
+		count[key]++
+	} else {
+		count[key] = 1
 	}
-	return false
 }
